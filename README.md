@@ -6,6 +6,7 @@ Estaremos utilizando venv como ambiente virtual de desenvolvimento.
 Para ativar o ambiente utilize este comando no terminal.
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
