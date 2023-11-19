@@ -55,11 +55,8 @@ class Peer:
 
         return toReturnPeer
 
-    def registerFile( filename: str, uniqueIdentifier: str) -> dict:
+    def registerFile(self, filename: str, uniqueIdentifier: str) -> dict:
         splitedFile = utils.splitFile(filename, pieceSize)
         for i in range(len(splitedFile)):
             piece = pieceObj.Piece(uniqueIdentifier + str(i), splitedFile[i])
             self.pieces[piece.id] = piece
-
-
-

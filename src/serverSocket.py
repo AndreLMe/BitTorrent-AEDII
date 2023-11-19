@@ -3,7 +3,6 @@ import threading
 import message
 
 class ServerSocket:
-
     def __init__(self, host, port, onReceiveMessage, socket = None):
         if socket is None:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,7 +26,6 @@ class ServerSocket:
             connectionAndAddress = self.sock.accept()
             thread = threading.Thread(target=self.waitForMessage, args=(connectionAndAddress,))
             thread.start()
-
 
     def waitForMessage(self, connectionAndAddress: (socket.socket, tuple)):
         connection = connectionAndAddress[0]
