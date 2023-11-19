@@ -1,6 +1,6 @@
 from piece import Piece
-import serverSocket
-import message as messagePackage
+from serverSocket import ServerSocket
+from message import Mensagem, TipoMensagem
 import json
 import utils
 
@@ -10,23 +10,23 @@ class Peer:
     def __init__(self, addr: tuple) -> None:
         self.addr = addr
         self.id = None
-        self.socket = serverSocket.ServerSocket(addr[0], addr[1], self.__listen)
+        self.socket = ServerSocket(addr[0], addr[1], self.__listen)
         self.self.selfPieces = {}
         self.sucessor = None
         self.predecessor = None
         self.knownPeers = [] # {"addr": (ip, port), "maxIdHash": 0}
         self.maxIdHash = None
     
-    def __listen(self, message: messagePackage.Mensagem, connection: serverSocket.ServerSocket):
-        if message.messageType == messagePackage.TipoMensagem.BUSCAR_PEDACO:
-            connection.send(messagePackage.Mensagem(messagePackage.TipoMensagem.BUSCAR_PEDACO, self.searchPiece(message.payload)))
+    def __listen(self, message: Mensagem, connection: ServerSocket):
+        if message.messageType == TipoMensagem.BUSCAR_PEDACO:
+            connection.send(Mensagem(TipoMensagem.BUSCAR_PEDACO, self.searchPiece(message.payload)))
 
-        elif message.messageType == messagePackage.TipoMensagem.INSERIR_PEDACO:
+        elif message.messageType == TipoMensagem.INSERIR_PEDACO:
             pass
-        elif message.messageType == messagePackage.TipoMensagem.VERIFICAR_PEDACO:
+        elif message.messageType == TipoMensagem.VERIFICAR_PEDACO:
             pieceIdHash = utils.numberHash(message["payload"]["id"])
             if pieceIdHash > self.maxIdHash or self.predessor.maxIdHash > pieceIdHash:
-                connection.send(messagePackage.Mensagem(messagePackage.TipoMensagem.BUSCAR_EM_OUTRO_PEER, {
+                connection.send(Mensagem(TipoMensagem.BUSCAR_EM_OUTRO_PEER, {
                     "peer": self.searchProbablePeer(message["payload"]["id"])["addr"],
                 }))
             
@@ -36,7 +36,7 @@ class Peer:
 
             responsePayload = json.dumps(response).encode()
 
-            connection.send(messagePackage.Mensagem(messagePackage.TipoMensagem.VERIFICAR_PEDACO, responsePayload))
+            connection.send(Mensagem(TipoMensagem.VERIFICAR_PEDACO, responsePayload))
         else:
             pass
         
