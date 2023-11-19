@@ -8,7 +8,8 @@ import utils
 pieceSize = 2**14 # tamanho de 16384 
 
 class Peer:
-    def __init__(self, addr: tuple, knownPeers: list, maxIdHash: int ) -> None:
+    def __init__(self, addr: tuple, knownPeers: list, maxIdHash: int, 
+                 sucessor: tuple, predecessor: tuple ) -> None:
         self.addr = addr
         self.id = None
         self.socket = ServerSocket(addr[0], addr[1], self.__listen)
@@ -16,7 +17,7 @@ class Peer:
         self.sucessor = None
         self.predecessor = None
         self.knownPeers = knownPeers # {"addr": (ip, port), "maxIdHash": 0}
-        self.maxIdHash = None
+        self.maxIdHash = maxIdHash
     
     def __listen(self, message: Mensagem, connection: BaseSocket):
         if message.messageType == TipoMensagem.BUSCAR_PEDACO:

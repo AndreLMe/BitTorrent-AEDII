@@ -1,10 +1,10 @@
 import socket
 import threading
 import message
-import baseSocket
+from baseSocket import BaseSocket
 
 class ServerSocket:
-    def __init__(self: baseSocket.BaseSocket, host, port, onReceiveMessage):
+    def __init__(self: BaseSocket, host, port, onReceiveMessage):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.onReceiveMessage = onReceiveMessage
         self.bind(host, port)
@@ -27,10 +27,10 @@ class ServerSocket:
     def waitForMessage(self, connectionAndAddress: (socket.socket, tuple)):
         connection = connectionAndAddress[0]
         while True:
-            messageBytes = connectionAndAddress[0].recv(1024)
-            while messageBytes[len(messageBytes)] != '\n':
-                messageBytes += connectionAndAddress[0].recv(1024)
+            messageBytes = connection.recv(1024)
+            while messageBytes[len(messageBytes) - 1] != '\n':
+                messageBytes += connection.recv(1024)
 
             parsedMessage = message.Mensagem(messageBytes)
-            self.onReceiveMessage(parsedMessage, baseSocket.BaseSocket(connectionAndAddress[0]))
+            self.onReceiveMessage(parsedMessage, BaseSocket(connection))
 

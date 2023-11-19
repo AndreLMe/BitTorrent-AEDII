@@ -1,9 +1,14 @@
+from message import Mensagem, TipoMensagem
+
 
 def main():
-    pass
+    print("Carregando demonstração...")
+    while True:
+        input()
 
 if __name__ == '__main__':
     try:
+        print("Iniciando...")
         main()
     except KeyboardInterrupt:
         print("Exiting...")
