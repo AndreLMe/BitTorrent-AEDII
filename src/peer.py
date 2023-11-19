@@ -1,4 +1,4 @@
-import piece as pieceObj
+from piece import Piece
 import serverSocket
 import message as messagePackage
 import json
@@ -11,7 +11,7 @@ class Peer:
         self.addr = addr
         self.id = None
         self.socket = serverSocket.ServerSocket(addr[0], addr[1], self.__listen)
-        self.pieces = {}
+        self.self.selfPieces = {}
         self.sucessor = None
         self.predecessor = None
         self.knownPeers = [] # {"addr": (ip, port), "maxIdHash": 0}
@@ -40,8 +40,8 @@ class Peer:
         else:
             pass
         
-    def searchPiece(self, pieceId: str) -> pieceObj.Piece:
-        return self.pieces[pieceId]
+    def searchPiece(self, pieceId: str) -> Piece:
+        return self.selfPieces[pieceId]
 
 
     def searchProbablePeer(self, pieceId: str) -> tuple:
@@ -58,5 +58,5 @@ class Peer:
     def registerFile(self, filename: str, uniqueIdentifier: str) -> dict:
         splitedFile = utils.splitFile(filename, pieceSize)
         for i in range(len(splitedFile)):
-            piece = pieceObj.Piece(uniqueIdentifier + str(i), splitedFile[i])
-            self.pieces[piece.id] = piece
+            piece = Piece(uniqueIdentifier + str(i), splitedFile[i])
+            self.selfPieces[piece.id] = piece
