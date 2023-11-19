@@ -1,5 +1,6 @@
 from piece import Piece
 from serverSocket import ServerSocket
+from baseSocket import BaseSocket
 from message import Mensagem, TipoMensagem
 import json
 import utils
@@ -7,17 +8,17 @@ import utils
 pieceSize = 2**14 # tamanho de 16384 
 
 class Peer:
-    def __init__(self, addr: tuple) -> None:
+    def __init__(self, addr: tuple, knownPeers: list, maxIdHash: int ) -> None:
         self.addr = addr
         self.id = None
         self.socket = ServerSocket(addr[0], addr[1], self.__listen)
-        self.self.selfPieces = {}
+        self.selfPieces = {}
         self.sucessor = None
         self.predecessor = None
-        self.knownPeers = [] # {"addr": (ip, port), "maxIdHash": 0}
+        self.knownPeers = knownPeers # {"addr": (ip, port), "maxIdHash": 0}
         self.maxIdHash = None
     
-    def __listen(self, message: Mensagem, connection: ServerSocket):
+    def __listen(self, message: Mensagem, connection: BaseSocket):
         if message.messageType == TipoMensagem.BUSCAR_PEDACO:
             connection.send(Mensagem(TipoMensagem.BUSCAR_PEDACO, self.searchPiece(message.payload)))
 

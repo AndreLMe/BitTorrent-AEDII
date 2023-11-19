@@ -1,0 +1,99 @@
+services:
+  peer-1:
+    build: .
+    image: peer
+    hostname: peer-1
+    networks:
+      - default
+    environment:
+      PARAMS: '
+        {
+          "nodeType": "peer",
+          "ip": "localhost",
+          "port": 3000,
+          "maxIdHash": "33",
+          "knownPeers": [
+              {"ip": "peer-2", "port": 3001, "maxIdHash": "66"},
+              {"ip": "peer-3", "port": 3002, "maxIdHash": "99"},
+              {"ip": "peer-5", "port": 3004, "maxIdHash": "ff"}
+          ]
+        }'
+  peer-2:
+    image: peer
+    hostname: peer-2
+    networks:
+      - default
+    environment:
+      PARAMS: '
+        {
+          "nodeType": "peer",
+          "ip": "localhost",
+          "port": 3001,
+          "maxIdHash": "66",
+          "knownPeers": [
+              { "ip": "peer-3", "port": 3002, "maxIdHash": "99" },
+              { "ip": "peer-4", "port": 3003, "maxIdHash": "CC" },
+              { "ip": "peer-1", "port": 3000, "maxIdHash": "33" }
+          ]
+        }'
+  peer-3:
+    image: peer
+    hostname: peer-3
+    networks:
+      - default
+    environment:
+      PARAMS: '
+        {
+          "nodeType": "peer",
+          "ip": "localhost",
+          "port": 3002,
+          "maxIdHash": "99",
+          "knownPeers": [
+              { "ip": "peer-4", "port": 3003, "maxIdHash": "CC" },
+              { "ip": "peer-5", "port": 3004, "maxIdHash": "FF" },
+              { "ip": "peer-2", "port": 3001, "maxIdHash": "66" }
+          ]
+
+        }'
+
+  peer-4:
+    image: peer
+    hostname: peer-4
+    networks:
+      - default
+    environment:
+      PARAMS: '
+        {
+          "nodeType": "peer",
+          "ip": "localhost",
+          "port": 3003,
+          "maxIdHash": "CC",
+          "knownPeers": [
+              { "ip": "peer-5", "port": 3004, "maxIdHash": "FF" },
+              { "ip": "peer-1", "port": 3000, "maxIdHash": "33" },
+              { "ip": "peer-3", "port": 3002, "maxIdHash": "99" }
+          ]
+        }'
+
+  peer-5:
+    image: peer
+    hostname: peer-5
+    networks:
+      - default
+    environment:
+      PARAMS: '
+        {
+          "nodeType": "peer",
+          "ip": "localhost",
+          "port": 3004,
+          "maxIdHash": "FF",
+          "knownPeers": [
+              { "ip": "peer-1", "port": 3000, "maxIdHash": "33" },
+              { "ip": "peer-2", "port": 3001, "maxIdHash": "66" },
+              { "ip": "peer-4", "port": 3003, "maxIdHash": "CC" }
+          ]
+        }'
+
+networks:
+  default:
+    name: ring-network

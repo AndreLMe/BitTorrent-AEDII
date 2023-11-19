@@ -1,31 +1,28 @@
 import socket
 import threading
 import message
+import baseSocket
 
 class ServerSocket:
-    def __init__(self, host, port, onReceiveMessage, socket = None):
-        if socket is None:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.settimeout(5)
-        else:
-            self.sock = socket
-        self.bind(host, port)
+    def __init__(self: baseSocket.BaseSocket, host, port, onReceiveMessage):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.onReceiveMessage = onReceiveMessage
-
-    def __init__ (self, socket: socket.socket) -> None:
-        self.sock = socket
+        self.bind(host, port)
 
     def bind(self, host, port):
         self.sock.bind((host, port))
+        self.sock.listen(5)
 
-        thread = threading.Thread(target=self.__listen)
+        thread = threading.Thread(target=self.waitForConnections)
         thread.start()
 
     def waitForConnections(self):
+        print("Esperando por novas conexões")
         while True:
             connectionAndAddress = self.sock.accept()
             thread = threading.Thread(target=self.waitForMessage, args=(connectionAndAddress,))
             thread.start()
+
 
     def waitForMessage(self, connectionAndAddress: (socket.socket, tuple)):
         connection = connectionAndAddress[0]
@@ -35,14 +32,5 @@ class ServerSocket:
                 messageBytes += connectionAndAddress[0].recv(1024)
 
             parsedMessage = message.Mensagem(messageBytes)
-            self.onReceiveMessage(parsedMessage, ServerSocket(connectionAndAddress[0]))
+            self.onReceiveMessage(parsedMessage, baseSocket.BaseSocket(connectionAndAddress[0]))
 
-    def sendAndWaitForResponse(self, message):
-        self.sock.sendall(message)
-        return self.sock.recv(1024)
-    
-    def send(self, message: message.Mensagem):
-        self.sock.sendall(message.serialize())
-
-    def waitMessage(self):
-        return self.sock.recv(1024)
