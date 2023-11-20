@@ -5,6 +5,8 @@ services:
     hostname: peer-1
     networks:
       - default
+    ports:
+      - "3000:3000"
     environment:
       PARAMS: '
         {
@@ -23,6 +25,8 @@ services:
     hostname: peer-2
     networks:
       - default
+    ports:
+      - "3001:3001"
     environment:
       PARAMS: '
         {
@@ -41,6 +45,8 @@ services:
     hostname: peer-3
     networks:
       - default
+    ports:
+      - "3002:3002"
     environment:
       PARAMS: '
         {
@@ -61,6 +67,8 @@ services:
     hostname: peer-4
     networks:
       - default
+    ports:
+      - "3003:3003"
     environment:
       PARAMS: '
         {
@@ -80,6 +88,8 @@ services:
     hostname: peer-5
     networks:
       - default
+    ports:
+      - "3004:3004"
     environment:
       PARAMS: '
         {

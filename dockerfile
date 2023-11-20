@@ -4,4 +4,4 @@ WORKDIR /usr/src/app
 
 COPY ./src .
 
-CMD python3 ./entryPoint.py "$PARAMS"
+CMD python3 -u ./entryPoint.py "$PARAMS"
