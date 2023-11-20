@@ -4,7 +4,6 @@ from message import *
 import utils
 from datetime import datetime
 from piece import Piece
-import socket
 
 pieceSize = 2**14 # tamanho de 16384 
 
@@ -45,48 +44,30 @@ class Client:
 
     def registrar_arquivo(self):
         filePath = input("Digite o caminho do arquivo: ")
-        #socket = ClientSocket("localhost", 3000)
+        socket = ClientSocket("localhost", 3000)
         fileIdentifier = utils.stringHash((filePath + datetime.now().strftime("%d/%m/%Y %H:%M:%S")).encode())
 
+        socket.connect()
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            s.connect(("localhost", 3000))
-        except socket.error as e:
-            print(f"Erro na conexão: {e}")
-            s.close()
-            s = None
-        s.sendall("teste".encode())
+        with open(filePath, "rb") as file:
+            i = 0 
+            while True:
+                print("Lendo pedaço")
+                chunk = file.read(pieceSize)
+                if not chunk:
+                    break
+                piece = Piece(fileIdentifier+":"+str(i), chunk)
 
+                print("Procurando servidor responsável")
+                r = socket.sendAndWaitForResponse(verificar_pedaco(piece.id, piece.checkSum))
+                while r.messageType == TipoMensagem.BUSCAR_EM_OUTRO_PEER:
+                   print("Tentando em : " + r.payload["peer"][0] + ":" + str(r.payload["peer"][1]))
+                   socket = ClientSocket(r.payload["peer"][0], r.payload["peer"][1])
+                   r = socket.sendAndWaitForResponse(verificar_pedaco(piece.id, piece.checkSum))
 
-        # socket.connect()
+                socket.sendAndWaitForResponse(inserir_pedaco(piece))
 
-        # socket.sock.sendall("test".encode())
-
-        # socket
-
-
-        # with open(filePath, "rb") as file:
-        #     i = 0 
-        #     while True:
-        #         print("Lendo pedaço")
-        #         chunk = file.read(pieceSize)
-        #         if not chunk:
-        #             break
-        #         piece = Piece(fileIdentifier+":"+str(i), chunk)
-
-        #         socket.enviar_mensagem(inserir_pedaco(piece))
-
-                #print("Procurando servidor responsável")
-                #r = socket.sendAndWaitForResponse(verificar_pedaco(piece.id, piece.checkSum))
-                #while r.messageType == TipoMensagem.BUSCAR_EM_OUTRO_PEER:
-                #    print("Tentando em : " + r.payload["peer"][0] + ":" + str(r.payload["peer"][1]))
-                #    socket = ClientSocket(r.payload["peer"][0], r.payload["peer"][1])
-                #    r = socket.sendAndWaitForResponse(verificar_pedaco(piece.id, piece.checkSum))
-
-                #socket.sendAndWaitForResponse(inserir_pedaco(piece))
-
-                # i += 1
+                i += 1
 
         # filePiecesBytes = utils.splitFile(filePath, pieceSize)
 
