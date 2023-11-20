@@ -21,14 +21,12 @@ class ServerSocket:
 
     def waitForConnections(self):
         print("Esperando conexões")
-        conn, addr = self.sock.accept()
-        print(conn.recv(1024))
-        # while True:
-        #     print("Esperando conexões dentro do while")
-        #     connectionAndAddress = self.sock.accept()
-        #     print("Conexão recebida")
-        #     thread = threading.Thread(target=self.waitForMessages, args=(connectionAndAddress,))
-        #     thread.start()
+        while True:
+            print("Esperando conexões dentro do while")
+            connectionAndAddress = self.sock.accept()
+            print("Conexão recebida")
+            thread = threading.Thread(target=self.waitForMessages, args=(connectionAndAddress,))
+            thread.start()
 
     def waitForMessages(self, connectionAndAddress: (socket.socket, tuple)):
         print("Nova conexão recebida")
