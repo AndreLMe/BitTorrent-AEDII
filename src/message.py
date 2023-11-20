@@ -10,37 +10,24 @@ class TipoMensagem(Enum):
     NOVO_PEER = 4
     PROXIMO_PEER = 5
     ANTERIOR_PEER = 6
+    BUSCAR_EM_OUTRO_PEER = 7
 
 class Mensagem:
-    def __init__(self, message: bytes, sender: (str, int)) -> None:
-        self.messageType, self.payload = self.deserialize(message)
-        self.sender = sender
-
-    def __init__(self, messageType : TipoMensagem, payload: bytes, sender: (str, int)) -> None:
+    def __init__(self, messageType: TipoMensagem = None, payload: dict = None):
         self.payload = payload
         self.messageType = messageType
-        self.sender = sender
-
-    def __init__(self, messageType : TipoMensagem, sender: (str, int)) -> None:
-        self.messageType = messageType
-        self.sender = sender
-
-    def __init__(self, messageType : TipoMensagem, payload: Piece, sender: (str, int)) -> None:
-        self.payload = self.serialize(payload)
-        self.messageType = messageType
-        self.sender = sender
     
     def serialize(self) -> bytes:
-        return (json.dumps(self.__dict__)+"\n").encode()
+        return pickle.dumps(self)+b'\0'
 
-    def deserialize(self, message: bytes) -> None:
-        return json.loads(message.decode())
+def deserialize(messageBytes: bytes) -> Mensagem:
+    return pickle.loads(messageBytes)
 
-def buscar_pedaco(addr: (str, int), piece: Piece):
-    return Mensagem(TipoMensagem.BUSCAR_PEDACO, piece, addr)
+def buscar_pedaco(pieceId: str):
+    return Mensagem(TipoMensagem.BUSCAR_PEDACO, pieceId)
 
-def inserir_pedaco(addr: (str, int), piece: Piece):
-    return Mensagem(TipoMensagem.INSERIR_PEDACO, piece, addr)
+def inserir_pedaco(piece: Piece):
+    return Mensagem(TipoMensagem.INSERIR_PEDACO, piece)
 
-def verificar_pedaco(addr: (str, int), piece: Piece):
-    return Mensagem(TipoMensagem.VERIFICAR_PEDACO, piece, addr)
+def verificar_pedaco(id: Piece, checkSum: str):
+    return Mensagem(TipoMensagem.VERIFICAR_PEDACO, {"id": id, "checkSum": checkSum})

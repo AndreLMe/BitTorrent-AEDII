@@ -10,10 +10,10 @@ def splitFile( filename: str, pieceSize: int) -> list:
             chunks.append(chunk)
     return chunks
 
-def stringHash(string: str) -> str:
-    hash_object = hashlib.sha256(string.encode())
+def stringHash(bytes: bytes) -> str:
+    hash_object = hashlib.sha256(bytes)
     return hash_object.hexdigest()
 
-def numberHash(string: str) -> int:
-    hash_object = hashlib.sha256(string.encode())
+def numberHash(bytes: bytes) -> int:
+    hash_object = hashlib.sha256(bytes)
     return int(hash_object.hexdigest()[:2], 16)
