@@ -1,10 +1,9 @@
 import socket
-import threading
 from message import Mensagem
 from baseSocket import BaseSocket
 
 class ClientSocket:
-    def __init__(self: BaseSocket, host, port, onReceiveMessage):
+    def __init__(self: BaseSocket, host, port):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = (host, port)
     
