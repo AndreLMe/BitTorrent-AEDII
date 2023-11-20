@@ -24,6 +24,11 @@ class Mensagem:
     def __init__(self, messageType : TipoMensagem, sender: (str, int)) -> None:
         self.messageType = messageType
         self.sender = sender
+
+    def __init__(self, messageType : TipoMensagem, payload: Piece, sender: (str, int)) -> None:
+        self.payload = self.serialize(payload)
+        self.messageType = messageType
+        self.sender = sender
     
     def serialize(self) -> bytes:
         return (json.dumps(self.__dict__)+"\n").encode()
@@ -31,15 +36,11 @@ class Mensagem:
     def deserialize(self, message: bytes) -> None:
         return json.loads(message.decode())
 
-
-def novo_node(addr: (str, int)):
-    return Mensagem(TipoMensagem.NOVO_PEER, addr)
-
 def buscar_pedaco(addr: (str, int), piece: Piece):
-    return Mensagem(TipoMensagem.BUSCAR_PEDACO, pickle.dumps(piece), addr)
+    return Mensagem(TipoMensagem.BUSCAR_PEDACO, piece, addr)
 
 def inserir_pedaco(addr: (str, int), piece: Piece):
-    return Mensagem(TipoMensagem.INSERIR_PEDACO, pickle.dumps(piece), addr)
+    return Mensagem(TipoMensagem.INSERIR_PEDACO, piece, addr)
 
 def verificar_pedaco(addr: (str, int), piece: Piece):
-    return Mensagem(TipoMensagem.VERIFICAR_PEDACO, pickle.dumps(piece), addr)
+    return Mensagem(TipoMensagem.VERIFICAR_PEDACO, piece, addr)

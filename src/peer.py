@@ -14,8 +14,8 @@ class Peer:
         self.id = None
         self.socket = ServerSocket(addr[0], addr[1], self.__listen)
         self.selfPieces = {}
-        self.sucessor = None
-        self.predecessor = None
+        self.sucessor = sucessor
+        self.predecessor = predecessor
         self.knownPeers = knownPeers # {"addr": (ip, port), "maxIdHash": 0}
         self.maxIdHash = maxIdHash
     
@@ -44,7 +44,6 @@ class Peer:
         
     def searchPiece(self, pieceId: str) -> Piece:
         return self.selfPieces[pieceId]
-
 
     def searchProbablePeer(self, pieceId: str) -> tuple:
         toReturnPeer = None
