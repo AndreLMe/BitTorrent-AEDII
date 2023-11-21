@@ -52,16 +52,13 @@ class ClientSocket:
         
     def waitMessageWithSocket(self, sock: socket.socket) -> Mensagem:
         messageBytes = sock.recv(4096)
-        # print("amountOfPackets")
-        amountOfPackets =  - 1
-        # print(amountOfPackets)
+        amountOfPackets = utils.parseFromBytes(messageBytes) - 1
         messageBytes = messageBytes[1:]
         while amountOfPackets > 0:
             print("in loop")
             messageBytes += sock.recv(4096)
             amountOfPackets -= 1
 
-        # print(messageBytes)
         sock.close()
         return deserialize(messageBytes)
 

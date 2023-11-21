@@ -28,7 +28,17 @@ class Peer:
         print("Mensagem recebida")
         print(message.messageType)
         if message.messageType == TipoMensagem.BUSCAR_PEDACO:
-            connection.send(Mensagem(TipoMensagem.BUSCAR_PEDACO, self.searchPiece(message.payload)))
+            if self.amITheResponsible(utils.numberHash(message.payload.encode())):
+                print("Sou responsável por esse pedaço: " + message.payload)
+                piece = self.searchPiece(message.payload)
+                connection.send(Mensagem(TipoMensagem.BUSCAR_PEDACO, piece))
+
+            else:
+                print("Não sou responsável por esse pedaço: " + message.payload)
+                connection.send(Mensagem(TipoMensagem.BUSCAR_EM_OUTRO_PEER, {
+                    "peer": self.searchNearPeer(message.payload).addr,
+                }))
+
         elif message.messageType == TipoMensagem.VERIFICAR_PEDACO:
             pieceIdHash = utils.numberHash(message.payload["id"].encode())
             if not self.amITheResponsible(pieceIdHash):
@@ -48,6 +58,7 @@ class Peer:
             responsePayload = json.dumps(response).encode()
 
             connection.send(Mensagem(TipoMensagem.VERIFICAR_PEDACO, responsePayload))
+
         elif message.messageType == TipoMensagem.INSERIR_PEDACO:
             pieceIdHash = utils.numberHash(message.payload.id.encode())
             if self.amITheResponsible(pieceIdHash):

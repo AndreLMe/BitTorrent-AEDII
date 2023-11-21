@@ -39,9 +39,39 @@ class Client:
                 break
             else:
                 print("Opção inválida!")
-    
+
+    def findServer(self, message: str) -> tuple:
+        address = ("localhost", 3000)
+        socket = ClientSocket("localhost", 3000)
+        r = socket.makeRequest(address, verificar_pedaco(message, ""))
+        while r.messageType == TipoMensagem.BUSCAR_EM_OUTRO_PEER:
+            socket = ClientSocket("localhost", r.payload["peer"][1])
+            r = socket.makeRequest(address, verificar_pedaco(message, ""))
+            if r.messageType != TipoMensagem.BUSCAR_EM_OUTRO_PEER:
+                break
+            address = ("localhost", r.payload["peer"][1])
+        return address
+
+    def baixar_pedaco(self):
+        socket = ClientSocket("localhost", 3000)
+        idPedaco = input("Digite o id do pedaço: ")
+        result = socket.makeRequest(self.findServer(idPedaco), buscar_pedaco(idPedaco))
+        if result.messageType == TipoMensagem.BUSCAR_PEDACO:
+            print("Pedaço encontrado")
+            print("Baixando...")
+            print(result.payload)
+            with open("pedaco_"+idPedaco, "wb") as file:
+                file.write(result.payload.bytes)
+
+        
+
+    def verificar_pedaco(self):
+        self.clientSocket.connectAndSend(verificar_pedaco(input("Digite o id do pedaço: "), input("Digite o checksum do pedaço: ")))
+
     def buscar_pedaco(self):
-        self.clientSocket.connectAndSend(buscar_pedaco(input("Digite o id do pedaço: ")))
+        socket = ClientSocket("localhost", 3000)
+        socket.makeRequest(buscar_pedaco(input("Digite o id do pedaço: ")))
+
 
     def registrar_arquivo(self):
         filePath = input("Digite o caminho do arquivo: ")
