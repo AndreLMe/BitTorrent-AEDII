@@ -14,8 +14,12 @@ if paramsDict["nodeType"] == "peer":
         peers.append(ServerInfo((peer["ip"], peer["port"]), int(peer["maxIdHash"], base=16)))
 
     print("Entrando no peer")
+    suc = paramsDict["sucessor"]
+    pred = paramsDict["predecessor"]
+
     peer = Peer((paramsDict["ip"], paramsDict["port"]),\
-                peers, int(paramsDict["maxIdHash"], base=16), peers[0], peers[2])
+                peers, int(paramsDict["maxIdHash"], base=16),\
+                ServerInfo((suc["ip"], suc["port"]), int(suc["maxIdHash"], 16)), ServerInfo((pred["ip"], pred["port"]), int(pred["maxIdHash"], 16)))
     
 if paramsDict["nodeType"] == "client":
     client = Client(paramsDict["ip"], paramsDict["port"])

@@ -4,6 +4,7 @@ from message import *
 import utils
 from datetime import datetime
 from piece import Piece
+import os
 
 pieceSize = 2**14 # tamanho de 16384 
 
@@ -47,27 +48,33 @@ class Client:
         socket = ClientSocket("localhost", 3000)
         fileIdentifier = utils.stringHash((filePath + datetime.now().strftime("%d/%m/%Y %H:%M:%S")).encode())
 
-        socket.connect()
 
+        address = ("localhost", 3000)
+        qtdOfPieces = os.path.getsize(filePath)/pieceSize
         with open(filePath, "rb") as file:
             i = 0 
             while True:
                 print("Lendo pedaço")
+                print("-->>>>"+str(i)+"/"+str(qtdOfPieces))
                 chunk = file.read(pieceSize)
                 if not chunk:
                     break
                 piece = Piece(fileIdentifier+":"+str(i), chunk)
 
                 print("Procurando servidor responsável")
-                r = socket.sendAndWaitForResponse(verificar_pedaco(piece.id, piece.checkSum))
+                r = socket.makeRequest(address, verificar_pedaco(piece.id, piece.checkSum))
                 while r.messageType == TipoMensagem.BUSCAR_EM_OUTRO_PEER:
-                   print("Tentando em : " + r.payload["peer"][0] + ":" + str(r.payload["peer"][1]))
-                   socket = ClientSocket(r.payload["peer"][0], r.payload["peer"][1])
-                   r = socket.sendAndWaitForResponse(verificar_pedaco(piece.id, piece.checkSum))
-
-                socket.sendAndWaitForResponse(inserir_pedaco(piece))
+                    socket = ClientSocket("localhost", r.payload["peer"][1])
+                    rr = socket.makeRequest(address, verificar_pedaco(piece.id, piece.checkSum))
+                    if rr.messageType != TipoMensagem.BUSCAR_EM_OUTRO_PEER:
+                        break
+                    address = ("localhost", rr.payload["peer"][1])
+                    r = rr
+                    # input()
+                socket.makeRequest(address, inserir_pedaco(piece))
 
                 i += 1
+
 
         # filePiecesBytes = utils.splitFile(filePath, pieceSize)
 

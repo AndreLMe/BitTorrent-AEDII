@@ -1,6 +1,7 @@
 import socket
 from message import Mensagem, deserialize
 from baseSocket import BaseSocket
+import utils
 
 class ClientSocket:
     def __init__(self: BaseSocket, host, port):
@@ -22,25 +23,13 @@ class ClientSocket:
         return response
     
     def sendAndWaitForResponse(self, mensagem: Mensagem) -> Mensagem:
-        print(mensagem)
-        print(mensagem.serialize())
+        self.connect()
         self.sock.sendall(mensagem.serialize())
-        
-        
         return self.waitMessage()
 
         
     def waitMessage(self) -> Mensagem:
-        messageBytes = self.sock.recv(1024)
-        while len(messageBytes) > 0 and messageBytes[len(messageBytes) - 1] != 0:
-            print("in loop")
-            messageBytes += self.sock.recv(1024)
-
-        
-        if len(messageBytes) == 0:
-            print("Mensagem vazia")
-            return None
-        return deserialize(messageBytes)
+        return self.waitMessageWithSocket(self.sock)
 
     def connectAndSend(self, mensagem: Mensagem):
         self.connect()
@@ -53,6 +42,29 @@ class ClientSocket:
                 self.sock.sendall(mensagem.serialize())
             except socket.error as e:
                 print(f"Problemas no envio de {self.server}: {e}")
+
+    def makeRequest(self, address: tuple, mensagem: Mensagem):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(address)
+        sock.sendall(mensagem.serialize())
+
+        return self.waitMessageWithSocket(sock)
+        
+    def waitMessageWithSocket(self, sock: socket.socket) -> Mensagem:
+        messageBytes = sock.recv(4096)
+        # print("amountOfPackets")
+        amountOfPackets =  - 1
+        # print(amountOfPackets)
+        messageBytes = messageBytes[1:]
+        while amountOfPackets > 0:
+            print("in loop")
+            messageBytes += sock.recv(4096)
+            amountOfPackets -= 1
+
+        # print(messageBytes)
+        sock.close()
+        return deserialize(messageBytes)
+
 
     def fechar_sock(self):
         pass

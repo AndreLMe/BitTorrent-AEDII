@@ -26,7 +26,6 @@ class Peer:
     
     def __listen(self, message: Mensagem, connection: BaseSocket):
         print("Mensagem recebida")
-        print(message)
         print(message.messageType)
         if message.messageType == TipoMensagem.BUSCAR_PEDACO:
             connection.send(Mensagem(TipoMensagem.BUSCAR_PEDACO, self.searchPiece(message.payload)))
@@ -36,6 +35,7 @@ class Peer:
                 connection.send(Mensagem(TipoMensagem.BUSCAR_EM_OUTRO_PEER, {
                     "peer": self.searchNearPeer(message.payload["id"]).addr,
                 }))
+                return
             
             print("Sou responsável por esse pedaço: " + str(pieceIdHash))
 
@@ -49,12 +49,14 @@ class Peer:
 
             connection.send(Mensagem(TipoMensagem.VERIFICAR_PEDACO, responsePayload))
         elif message.messageType == TipoMensagem.INSERIR_PEDACO:
-            pieceIdHash = utils.numberHash(message.payload["id"].encode())
+            pieceIdHash = utils.numberHash(message.payload.id.encode())
             if self.amITheResponsible(pieceIdHash):
-                self.selfPieces[message.payload["id"]] = message.payload
+                self.selfPieces[message.payload.id] = message.payload
+                print("Pedaço inserido com sucesso: "+message.payload.id)
+                connection.send(Mensagem(TipoMensagem.INSERIR_PEDACO, "OK"))
             else:
                 connection.send(Mensagem(TipoMensagem.BUSCAR_EM_OUTRO_PEER, {
-                    "peer": self.searchNearPeer(message.payload["id"]).addr,
+                    "peer": self.searchNearPeer(message.payload.id).addr,
                 }))
         else:
             pass
@@ -63,6 +65,13 @@ class Peer:
         print("Comparando " + str(pieceIdHash) + " com " + str(self.maxIdHash))
         print(pieceIdHash <= self.maxIdHash)
         print(pieceIdHash > self.predecessor.maxIdHash)
+
+
+        predIsLast = self.predecessor.maxIdHash >= 255
+        
+        if predIsLast:
+            return pieceIdHash <= self.maxIdHash
+
         return pieceIdHash <= self.maxIdHash and pieceIdHash > self.predecessor.maxIdHash
     
     def isNearPeer(self, pieceHash: str, previous: str, now: str) -> bool:
@@ -75,6 +84,10 @@ class Peer:
         toReturnPeer = None
         pieceIdHash = utils.numberHash(pieceId.encode())
 
+        if self.sucessor.maxIdHash >= pieceIdHash and pieceIdHash > self.maxIdHash:
+            print("Retornando para tentar em(): " + str(self.sucessor.addr))
+            return self.sucessor
+
         # Will iterate over the known peers and return the one with the highest id hash that is smaller than the piece id hash
         for i in range(1,len(self.knownPeers)):
             peer = self.knownPeers[i]
@@ -85,6 +98,7 @@ class Peer:
         else:
             toReturnPeer = self.knownPeers[len(self.knownPeers)-1]
 
+        print("Retornando para tentar em: " + str(toReturnPeer.addr))
         return toReturnPeer
 
     def registerFile(self, filename: str, uniqueIdentifier: str) -> dict:

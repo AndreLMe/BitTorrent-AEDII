@@ -3,6 +3,7 @@ import threading
 import message
 from baseSocket import BaseSocket
 import pickle
+import utils
 
 class ServerSocket:
     def __init__(self, host, port, onReceiveMessage):
@@ -31,12 +32,22 @@ class ServerSocket:
     def waitForMessages(self, connectionAndAddress: (socket.socket, tuple)):
         print("Nova conexão recebida")
         connection = connectionAndAddress[0]
-        while True:
-            messageBytes = connection.recv(1024)
-            while len(messageBytes) > 0 and messageBytes[len(messageBytes) - 1] != 0:
-                print("in loop")
-                messageBytes += connection.recv(1024)
+        try:
+            while True:
+                messageBytes = connection.recv(4096)
+                if not messageBytes:
+                    break
+                amountOfPackets = utils.parseFromBytes(messageBytes) - 1
+                print(amountOfPackets)
+                messageBytes = messageBytes[1:]
+                while amountOfPackets > 0:
+                    print("in loop")
+                    messageBytes += connection.recv(4096)
+                    amountOfPackets -= 1
 
-            
-            self.onReceiveMessage(message.deserialize(messageBytes), BaseSocket(connection))
-
+                self.onReceiveMessage(message.deserialize(messageBytes), BaseSocket(connection))
+        except Exception as e:
+            print(e.with_traceback())
+            print("Conexão encerrada")
+            connection.close()
+            return

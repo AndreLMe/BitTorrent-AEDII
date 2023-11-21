@@ -17,3 +17,6 @@ def stringHash(bytes: bytes) -> str:
 def numberHash(bytes: bytes) -> int:
     hash_object = hashlib.sha256(bytes)
     return int(hash_object.hexdigest()[:2], 16)
+
+def parseFromBytes(bytes: bytes) -> list:
+    return int.from_bytes(bytes[:1])
