@@ -55,9 +55,7 @@ class Peer:
 
             response = {"checkSumIsValid":checkSumIsValid}
 
-            responsePayload = json.dumps(response).encode()
-
-            connection.send(Mensagem(TipoMensagem.VERIFICAR_PEDACO, responsePayload))
+            connection.send(Mensagem(TipoMensagem.VERIFICAR_PEDACO, response))
 
         elif message.messageType == TipoMensagem.INSERIR_PEDACO:
             pieceIdHash = utils.numberHash(message.payload.id.encode())
