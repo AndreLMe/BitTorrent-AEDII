@@ -19,27 +19,15 @@ class Mensagem:
         self.messageType = messageType
     
     def serialize(self) -> bytes:
-        # pickleBytes = self.jsonSerialize()
         pickleBytes = pickle.dumps(self)
         amountOfPackages = math.ceil((len(pickleBytes)+1) / 4096)
-        # print(amountOfPackages)
-        # print(len(pickleBytes))
         intBytes = amountOfPackages.to_bytes(1,signed=False)
-        # print(intBytes)
-        # print("len -> intBytes")
-        # print(len(intBytes))
-        # print(int.from_bytes(intBytes, signed=False))
-        # print("size final")
-        # print(len(intBytes + pickleBytes))
-        # print(pickleBytes)
         return intBytes + pickleBytes
 
     def jsonSerialize(self) -> bytes:
         return json.dumps({"messageType": self.messageType.value, "payload": self.payload}).encode()
     
 def deserialize(messageBytes: bytes) -> Mensagem:
-    # jsonObj = json.loads(messageBytes)
-    # return Mensagem(jsonObj["messageType"], jsonObj["payload"])
     return pickle.loads(messageBytes)
 
 def buscar_pedaco(pieceId: str):

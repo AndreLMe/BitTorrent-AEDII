@@ -161,20 +161,3 @@ class Client:
                 threading.Thread(target=socket.makeRequest, args=(address, inserir_pedaco(piece))).start()
 
                 i += 1
-
-
-        # filePiecesBytes = utils.splitFile(filePath, pieceSize)
-
-        # print("Arquivo dividido em " + str(len(filePiecesBytes)) + " pedaços")
-        # filePieces = []
-
-        # print("Preparando pedaços para envio")
-        # for i in range(len(filePiecesBytes)):
-        #     filePieces.append(Piece(fileIdentifier+":"+str(i), filePiecesBytes[i]))
-
-        # print("Enviando pedaços")
-        # for piece in filePieces:
-        #     r = socket.sendAndWaitForResponse(inserir_pedaco(piece))
-        #     while r.messageType == TipoMensagem.BUSCAR_EM_OUTRO_PEER:
-        #         socket = ClientSocket(r.payload["peer"][0], r.payload["peer"][1])
-        #         r = socket.sendAndWaitForResponse(inserir_pedaco(piece))

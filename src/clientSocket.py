@@ -55,7 +55,6 @@ class ClientSocket:
         amountOfPackets = utils.parseFromBytes(messageBytes) - 1
         messageBytes = messageBytes[1:]
         while amountOfPackets > 0:
-            print("in loop")
             messageBytes += sock.recv(4096)
             amountOfPackets -= 1
 
@@ -65,7 +64,4 @@ class ClientSocket:
 
     def fechar_sock(self):
         pass
-        #if self.sock:
-        #    self.sock.close()
-        #    print(f"Conexão com {self.server} fechada")
 

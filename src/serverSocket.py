@@ -2,7 +2,6 @@ import socket
 import threading
 import message
 from baseSocket import BaseSocket
-import pickle
 import utils
 
 class ServerSocket:
@@ -41,7 +40,6 @@ class ServerSocket:
                 print(amountOfPackets)
                 messageBytes = messageBytes[1:]
                 while amountOfPackets > 0:
-                    print("in loop")
                     messageBytes += connection.recv(4096)
                     amountOfPackets -= 1
 
